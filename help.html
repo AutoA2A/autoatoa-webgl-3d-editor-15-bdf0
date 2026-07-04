@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>帮助与文档</title>
+<style>
+:root{
+--primary:#1976d2;
+--secondary:#42a5f5;
+--bg:#fff;
+--text:#333;
+--muted:#666;
+--border:#eee;
+--radius:8px;
+--btn-radius:4px;
+--gap:16px;
+}
+body{
+margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:#fafafa;color:var(--text);
+}
+header{
+background:var(--bg);border-bottom:1px solid var(--border);padding:0 var(--gap);
+display:flex;align-items:center;justify-content:space-between;
+}
+.nav{
+display:flex;gap:var(--gap);align-items:center;
+}
+.nav a{
+padding:8px 12px;color:var(--text);text-decoration:none;border-radius:var(--btn-radius);
+font-weight:500;
+}
+.nav a:hover{
+color:var(--primary);background:rgba(25,118,210,0.08);
+}
+.logo{
+font-size:1.25rem;font-weight:600;color:var(--primary);
+}
+@media (max-width:600px){
+.nav{
+overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
+padding-bottom:4px;
+}
+.nav a{
+white-space:nowrap;
+}
+}
+main{
+padding:var(--gap);
+min-height:calc(100vh - 60px);
+}
+</style>
+<meta name="description" content="提供使用教程、快捷键说明、常见问题解答。"><meta name="keywords" content="WebGL,3D建模,在线编辑器,模型编辑,GLTF"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="帮助与文档"><meta property="og:description" content="提供使用教程、快捷键说明、常见问题解答。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="帮助与文档"><meta name="twitter:description" content="提供使用教程、快捷键说明、常见问题解答。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"帮助与文档","description":"提供使用教程、快捷键说明、常见问题解答。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+<div class="logo">WebGL 3D 模型编辑器</div>
+<nav class="nav">
+<a href="index.html">首页</a>
+<a href="editor.html">编辑器</a>
+<a href="library.html">素材库</a>
+<a href="projects.html">我的项目</a>
+<a href="help.html">帮助与文档</a>
+</nav>
+</header>
+<main>
+
+<section>
+ <h2>使用教程</h2>
+ <div style="border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);margin-bottom:var(--gap);">
+  <h3 style="margin-top:0;color:var(--primary);">步骤一：创建新模型</h3>
+  <p style="color:var(--text);">在首页点击 “新建模型” 按钮，系统会打开一个空白的编辑器页面（editor.html）。</p>
+ </div>
+ <div style="border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);margin-bottom:var(--gap);">
+  <h3 style="margin-top:0;color:var(--primary);">步骤二：添加几何体</h3>
+  <p style="color:var(--text);">在编辑器左侧的 “模型列表” 面板点击 “+” 按钮，选择立方体、球体或自定义导入的 OBJ/GLTF 文件。</p>
+ </div>
+ <div style="border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);margin-bottom:var(--gap);">
+  <h3 style="margin-top:0;color:var(--primary);">步骤三：编辑与导出</h3>
+  <p style="color:var(--text);">选中模型后，右侧属性面板可调整位置、旋转、缩放和材质。完成后点击顶部菜单的 “导出” 选择 GLTF 或 STL 格式下载。</p>
+ </div>
+</section>
+
+<section>
+ <h2>快捷键说明</h2>
+ <table style="width:100%;border-collapse:collapse;">
+  <thead>
+   <tr>
+    <th style="text-align:left;padding:var(--gap);border-bottom:2px solid var(--border);color:var(--primary);">操作</th>
+    <th style="text-align:left;padding:var(--gap);border-bottom:2px solid var(--border);color:var(--primary);">快捷键</th>
+   </tr>
+  </thead>
+  <tbody>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">新建模型</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Ctrl + N</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">打开项目</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Ctrl + O</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">保存</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Ctrl + S</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">撤销</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Ctrl + Z</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">重做</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Ctrl + Y</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">删除选中对象</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">Delete</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">切换视角（轨道控制）</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">鼠标中键拖动</td>
+   </tr>
+   <tr>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">聚焦选中对象</td>
+    <td style="padding:var(--gap);border-bottom:1px solid var(--border);">F</td>
+   </tr>
+  </tbody>
+ </table>
+</section>
+
+<section>
+ <h2>常见问题解答</h2>
+ <details style="margin-bottom:var(--gap);padding:var(--gap);border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);">
+  <summary style="color:var(--primary);cursor:pointer;">如何导入自定义纹理？</summary>
+  <p style="color:var(--text);margin-top:8px;">在素材库页面（library.html）点击 “上传纹理” 按钮，选择本地图片（PNG/JPG），上传后即可在编辑器的材质面板中选用。</p>
+ </details>
+ <details style="margin-bottom:var(--gap);padding:var(--gap);border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);">
+  <summary style="color:var(--primary);cursor:pointer;">编辑器卡顿怎么办？</summary>
+  <p style="color:var(--text);margin-top:8px;">请确保使用支持 WebGL2 的现代浏览器（Chrome、Firefox、Edge、Safari），并关闭不必要的扩展。若场景过大，可在属性面板降低细分级别或使用实例化。</p>
+ </details>
+ <details style="margin-bottom:var(--gap);padding:var(--gap);border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);">
+  <summary style="color:var(--primary);cursor:pointer;">导出的模型为什么没有颜色？</summary>
+  <p style="color:var(--text);margin-top:8px;">导出时请确认已勾选 “包含材质” 选项。部分格式（如 STL）不支持颜色，建议使用 GLTF 以保留颜色和纹理。</p>
+ </details>
+</section>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
