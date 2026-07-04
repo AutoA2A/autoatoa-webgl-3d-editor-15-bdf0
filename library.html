@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>素材库</title>
+<style>
+:root{
+--primary:#1976d2;
+--secondary:#42a5f5;
+--bg:#fff;
+--text:#333;
+--muted:#666;
+--border:#eee;
+--radius:8px;
+--btn-radius:4px;
+--gap:16px;
+}
+body{
+margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:#fafafa;color:var(--text);
+}
+header{
+background:var(--bg);border-bottom:1px solid var(--border);padding:0 var(--gap);
+display:flex;align-items:center;justify-content:space-between;
+}
+.nav{
+display:flex;gap:var(--gap);align-items:center;
+}
+.nav a{
+padding:8px 12px;color:var(--text);text-decoration:none;border-radius:var(--btn-radius);
+font-weight:500;
+}
+.nav a:hover{
+color:var(--primary);background:rgba(25,118,210,0.08);
+}
+.logo{
+font-size:1.25rem;font-weight:600;color:var(--primary);
+}
+@media (max-width:600px){
+.nav{
+overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
+padding-bottom:4px;
+}
+.nav a{
+white-space:nowrap;
+}
+}
+main{
+padding:var(--gap);
+min-height:calc(100vh - 60px);
+}
+</style>
+<meta name="description" content="浏览、搜索、上传纹理、材质、光源预设，选中后可拖入编辑器使用。"><meta name="keywords" content="WebGL,3D建模,在线编辑器,模型编辑,GLTF"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="素材库"><meta property="og:description" content="浏览、搜索、上传纹理、材质、光源预设，选中后可拖入编辑器使用。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="素材库"><meta name="twitter:description" content="浏览、搜索、上传纹理、材质、光源预设，选中后可拖入编辑器使用。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"素材库","description":"浏览、搜索、上传纹理、材质、光源预设，选中后可拖入编辑器使用。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+<div class="logo">WebGL 3D 模型编辑器</div>
+<nav class="nav">
+<a href="index.html">首页</a>
+<a href="editor.html">编辑器</a>
+<a href="library.html">素材库</a>
+<a href="projects.html">我的项目</a>
+<a href="help.html">帮助与文档</a>
+</nav>
+</header>
+<main>
+
+<h1 style="margin-top:0;color:var(--primary);">素材库</h1>
+<input type="text" id="searchInput" placeholder="搜索素材..." style="padding:8px;border-radius:var(--btn-radius);border:1px solid var(--border);margin-bottom:var(--gap);width:100%;max-width:300px;">
+<div id="tabBar" style="display:flex;gap:var(--gap);margin-bottom:var(--gap);">
+  <button class="tab-btn" data-category="texture" style="background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;">纹理</button>
+  <button class="tab-btn" data-category="material" style="background:var(--secondary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;">材质</button>
+  <button class="tab-btn" data-category="light" style="background:var(--secondary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;">光源预设</button>
+</div>
+<input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.json" style="display:none;">
+<button id="uploadBtn" style="background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;">上传选中文件</button>
+<div id="assetContainer" style="display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill,minmax(200px,1fr));"></div>
+
+<script>
+(function(){
+  const categories = ['texture','material','light'];
+  let currentCat = 'texture';
+  const assets = {texture:[],material:[],light:[]};
+  const searchInput = document.getElementById('searchInput');
+  const fileInput = document.getElementById('fileInput');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const assetContainer = document.getElementById('assetContainer');
+  const tabButtons = document.querySelectorAll('.tab-btn');
+
+  function getAssetPreview(asset){
+    if(asset.type.startsWith('image/')){
+      return `<img src="${asset.url}" alt="${asset.name}" style="width:100%;height:120px;object-fit:contain;border-radius:var(--radius);">`;
+    }
+    // JSON or other: show a generic SVG icon
+    const svg = `<svg width="80" height="80" xmlns="http://www.w3.org/2000/svg"><rect width="80" height="80" fill="%23ddd"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="10" fill="%23666">${asset.type}</text></svg>`;
+    return `<img src="data:image/svg+xml;base64,${btoa(svg)}" alt="${asset.type}" style="width:80px;height:80px;">`;
+  }
+
+  function renderAssets(){
+    assetContainer.innerHTML = '';
+    const filtered = assets[currentCat].filter(a =>
+      a.name.toLowerCase().includes(searchInput.value.toLowerCase())
+    );
+    if(filtered.length===0){
+      assetContainer.innerHTML = `<p style="color:var(--muted);text-align:center;grid-column:1/-1;">暂无素材</p>`;
+      return;
+    }
+    filtered.forEach(asset=>{
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.style.cssText = `border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);`;
+      card.draggable = true;
+      card.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', asset.name);
+      });
+      card.innerHTML = `
+        <h3 style="margin-top:0;color:var(--primary);">${asset.name}</h3>
+        ${getAssetPreview(asset)}
+      `;
+      assetContainer.appendChild(card);
+    });
+  }
+
+  function handleFiles(files){
+    for(const file of files){
+      const url = URL.createObjectURL(file);
+      assets[currentCat].push({
+        name: file.name,
+        url: url,
+        type: file.type,
+        file: file
+      });
+    }
+    renderAssets();
+  }
+
+  tabButtons.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      tabButtons.forEach(b=>b.style.background='var(--secondary)');
+      btn.style.background='var(--primary)';
+      currentCat = btn.dataset.category;
+      renderAssets();
+    });
+  });
+
+  uploadBtn.addEventListener('click',()=>fileInput.click());
+  fileInput.addEventListener('change',e=>handleFiles(e.target.files));
+  searchInput.addEventListener('input',renderAssets);
+
+  // 初始化选中状态
+  tabButtons[0].style.background='var(--primary)';
+  renderAssets();
+})();
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
