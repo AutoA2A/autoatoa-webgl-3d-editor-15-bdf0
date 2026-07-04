@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D 模型编辑器</title>
+<style>
+:root{
+--primary:#1976d2;
+--secondary:#42a5f5;
+--bg:#fff;
+--text:#333;
+--muted:#666;
+--border:#eee;
+--radius:8px;
+--btn-radius:4px;
+--gap:16px;
+}
+body{
+margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:#fafafa;color:var(--text);
+}
+header{
+background:var(--bg);border-bottom:1px solid var(--border);padding:0 var(--gap);
+display:flex;align-items:center;justify-content:space-between;
+}
+.nav{
+display:flex;gap:var(--gap);align-items:center;
+}
+.nav a{
+padding:8px 12px;color:var(--text);text-decoration:none;border-radius:var(--btn-radius);
+font-weight:500;
+}
+.nav a:hover{
+color:var(--primary);background:rgba(25,118,210,0.08);
+}
+.logo{
+font-size:1.25rem;font-weight:600;color:var(--primary);
+}
+@media (max-width:600px){
+.nav{
+overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
+padding-bottom:4px;
+}
+.nav a{
+white-space:nowrap;
+}
+}
+main{
+padding:var(--gap);
+min-height:calc(100vh - 60px);
+}
+</style>
+<meta name="description" content="核心编辑页面，左侧模型列表/素材库，中央 WebGL 画布，右侧属性面板，支持新建、打开、保存、导出模型。"><meta name="keywords" content="WebGL,3D建模,在线编辑器,模型编辑,GLTF"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="3D 模型编辑器"><meta property="og:description" content="核心编辑页面，左侧模型列表/素材库，中央 WebGL 画布，右侧属性面板，支持新建、打开、保存、导出模型。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="3D 模型编辑器"><meta name="twitter:description" content="核心编辑页面，左侧模型列表/素材库，中央 WebGL 画布，右侧属性面板，支持新建、打开、保存、导出模型。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"3D 模型编辑器","description":"核心编辑页面，左侧模型列表/素材库，中央 WebGL 画布，右侧属性面板，支持新建、打开、保存、导出模型。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+<div class="logo">WebGL 3D 模型编辑器</div>
+<nav class="nav">
+<a href="index.html">首页</a>
+<a href="editor.html">编辑器</a>
+<a href="library.html">素材库</a>
+<a href="projects.html">我的项目</a>
+<a href="help.html">帮助与文档</a>
+</nav>
+</header>
+<main>
+
+<div style="display:flex;gap:var(--gap);height:calc(100vh - 60px);">
+  <aside style="width:260px;display:flex;flex-direction:column;gap:var(--gap);">
+    <article class='card' style='border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);'>
+      <h3 style='margin-top:0;color:var(--primary);'>模型列表</h3>
+      <div id='modelList' style='flex:1;overflow-y:auto;'></div>
+    </article>
+    <article class='card' style='border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);'>
+      <h3 style='margin-top:0;color:var(--primary);'>素材库</h3>
+      <div id='materialList' style='flex:1;overflow-y:auto;'></div>
+      <button id='addCube' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;margin-top:var(--gap);'>添加立方体</button>
+      <button id='addSphere' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;margin-top:var(--gap);'>添加球体</button>
+    </article>
+  </aside>
+
+  <section style="flex:1;position:relative;">
+    <canvas id="glcanvas" width="800" height="600" style="width:100%;height:100%;display:block;"></canvas>
+    <div id="uiOverlay" style="position:absolute;top:10px;left:10px;color:#fff;font-family:sans-serif;"></div>
+  </section>
+
+  <aside style="width:260px;display:flex;flex-direction:column;gap:var(--gap);">
+    <article class='card' style='border-radius:var(--radius);box-shadow:0 2px 4px rgba(0,0,0,0.1);background:var(--bg);padding:var(--gap);'>
+      <h3 style='margin-top:0;color:var(--primary);'>属性面板</h3>
+      <div id='props' style='flex:1;overflow-y:auto;padding:var(--gap);'></div>
+    </article>
+    <div style="display:flex;flex-direction:column;gap:var(--gap);">
+      <button id='btnNew' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;'>新建</button>
+      <button id='btnOpen' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;'>打开</button>
+      <button id='btnSave' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;'>保存</button>
+      <button id='btnExport' style='background:var(--primary);color:#fff;border:none;border-radius:var(--btn-radius);padding:8px 16px;font-size:1rem;cursor:pointer;width:100%;'>导出模型</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  let objects = [];
+  let selectedIndex = null;
+
+  function addObject(type) {
+    const obj = {
+      type,
+      position: [0, 0, 0],
+      scale: [1, 1, 1],
+      color: [Math.random() * 0.5 + 0.5, Math.random() * 0.5 + 0.5, Math.random() * 0.5 + 0.5]
+    };
+    objects.push(obj);
+    renderList();
+    selectObject(objects.length - 1);
+  }
+
+  function renderList() {
+    const list = document.getElementById('modelList');
+    list.innerHTML = '';
+    objects.forEach((obj, i) => {
+      const div = document.createElement('div');
+      div.style.padding = '4px';
+      div.style.cursor = 'pointer';
+      div.style.borderBottom = '1px solid var(--border)';
+      div.textContent = obj.type === 'cube' ? `立方体 ${i + 1}` : `球体 ${i + 1}`;
+      div.onclick = () => selectObject(i);
+      list.appendChild(div);
+    });
+  }
+
+  function selectObject(idx) {
+    selectedIndex = idx;
+    updatePropsPanel();
+  }
+
+  function updatePropsPanel() {
+    const props = document.getElementById('props');
+    props.innerHTML = '';
+    if (selectedIndex === null) {
+      props.textContent = '请选择一个对象';
+      return;
+    }
+    const obj = objects[selectedIndex];
+    const makeLabel = txt => {
+      const l = document.createElement('label');
+      l.style.display = 'block';
+      l.style.marginTop = '8px';
+      l.textContent = txt;
+      return l;
+    };
+    const makeInput = (value, step, onchange) => {
+      const i = document.createElement('input');
+      i.type = 'number';
+      i.value = value;
+      i.step = step || 0.1;
+      i.style.width = '100%';
+      i.style.padding = '4px';
+      i.style.boxSizing = 'border-box';
+      i.onchange = () => onchange(parseFloat(i.value));
+      return i;
+    };
+    // Position
+    props.appendChild(makeLabel('位置 X'));
+    props.appendChild(makeInput(obj.position[0], 0.1, v => obj.position[0] = v));
+    props.appendChild(makeLabel('位置 Y'));
+    props.appendChild(makeInput(obj.position[1], 0.1, v => obj.position[1] = v));
+    props.appendChild(makeLabel('位置 Z'));
+    props.appendChild(makeInput(obj.position[2], 0.1, v => obj.position[2] = v));
+    // Scale
+    props.appendChild(makeLabel('缩放 X'));
+    props.appendChild(makeInput(obj.scale[0], 0.1, v => obj.scale[0] = v));
+    props.appendChild(makeLabel('缩放 Y'));
+    props.appendChild(makeInput(obj.scale[1], 0.1, v => obj.scale[1] = v));
+    props.appendChild(makeLabel('缩放 Z'));
+    props.appendChild(makeInput(obj.scale[2], 0.1, v => obj.scale[2] = v));
+    // Color
+    props.appendChild(makeLabel('颜色 R'));
+    props.appendChild(makeInput(obj.color[0], 0.01, v => obj.color[0] = v));
+    props.appendChild(makeLabel('颜色 G'));
+    props.appendChild(makeInput(obj.color[1], 0.01, v => obj.color[1] = v));
+    props.appendChild(makeLabel('颜色 B'));
+    props.appendChild(makeInput(obj.color[2], 0.01, v => obj.color[2] = v));
+  }
+
+  function newScene() {
+    if (confirm('清空当前场景？')) {
+      objects = [];
+      selectedIndex = null;
+      renderList();
+      updatePropsPanel();
+    }
+  }
+
+  function loadScene() {
+    const data = localStorage.getItem('editorScene');
+    if (data) {
+      try {
+        objects = JSON.parse(data);
+        selectedIndex = null;
+        renderList();
+        updatePropsPanel();
+      } catch (e) {
+        alert('读取失败');
+      }
+    } else {
+      alert('本地无保存的场景');
+    }
+  }
+
+  function saveScene() {
+    localStorage.setItem('editorScene', JSON.stringify(objects));
+    alert('场景已保存到本地');
+  }
+
+  function exportScene() {
+    const data = JSON.stringify(objects, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'scene.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---------- WebGL ----------
+  function initGL() {
+    const canvas = document.getElementById('glcanvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) { alert('WebGL 不支持'); return; }
+
+    const vs = `
+      attribute vec3 aPosition;
+      uniform mat4 uMVP;
+      uniform vec3 uColor;
+      void main(){ gl_Position = uMVP * vec4(aPosition,1.0); }
+    `;
+    const fs = `
+      precision mediump float;
+      uniform vec3 uColor;
+      void main(){ gl_FragColor = vec4(uColor,1.0); }
+    `;
+    function compile(src, type) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(sh));
+      }
+      return sh;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(vs, gl.VERTEX_SHADER));
+    gl.attachShader(prog, compile(fs, gl.FRAGMENT_SHADER));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+    const posLoc = gl.getAttribLocation(prog, 'aPosition');
+    const mvpLoc = gl.getUniformLocation(prog, 'uMVP');
+    const colorLoc = gl.getUniformLocation(prog, 'uColor');
+    gl.enableVertexAttribArray(posLoc);
+
+    // Cube vertices
+    function createCube() {
+      const verts = [
+        -1,-1,-1, 1,-1,-1, 1,1,-1, -1,1,-1,
+        -1,-1, 1, 1,-1, 1, 1,1, 1, -1,1, 1
+      ];
+      const indices = [
+        0,1,2, 0,2,3,
+        4,5,6, 4,6,7,
+        0,1,5, 0,5,4,
+        2,3,7, 2,7,6,
+        0,4,7, 0,7,3,
+        1,5,6, 1,6,2
+      ];
+      return {verts, indices};
+    }
+    const {verts, indices} = createCube();
+    const vbuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    const ibuf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    function drawObject(obj) {
+      const m = new Float32Array(16);
+      m.set([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+      m[0] *= obj.scale[0]; m[5] *= obj.scale[1]; m[10] *= obj.scale[2];
+      m[12] = obj.position[0]; m[13] = obj.position[1]; m[14] = obj.position[2];
+
+      const aspect = canvas.clientWidth / canvas.clientHeight;
+      const fov = Math.PI / 4;
+      const near = 0.1, far = 100.0;
+      const f = 1.0 / Math.tan(fov / 2);
+      const proj = new Float32Array(16);
+      proj[0] = f / aspect;
+      proj[5] = f;
+      proj[10] = (far + near) / (near - far);
+      proj[11] = -1;
+      proj[14] = (2 * far * near) / (near - far);
+      proj[15] = 0;
+
+      const view = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,-5,1]);
+
+      function mul(a,b){
+        const res = new Float32Array(16);
+        for(let i=0;i<4;i++){
+          for(let j=0;j<4;j++){
+            let sum=0;
+            for(let k=0;k<4;k++){
+              sum += a[i*4+k] * b[k*4+j];
+            }
+            res[i*4+j] = sum;
+          }
+        }
+        return res;
+      }
+      const mv = mul(view, m);
+      const mvp = mul(proj, mv);
+      gl.uniformMatrix4fv(mvpLoc, false, mvp);
+      gl.uniform3fv(colorLoc, obj.color);
+      gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+    }
+
+    function render() {
+      gl.clearColor(0.1,0.1,0.1,1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);
+      objects.forEach(drawObject);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  }
+
+  // UI bindings
+  document.getElementById('addCube').onclick = () => addObject('cube');
+  document.getElementById('addSphere').onclick = () => addObject('sphere');
+  document.getElementById('btnNew').onclick = newScene;
+  document.getElementById('btnOpen').onclick = loadScene;
+  document.getElementById('btnSave').onclick = saveScene;
+  document.getElementById('btnExport').onclick = exportScene;
+
+  initGL();
+  renderList();
+  updatePropsPanel();
+})();
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
