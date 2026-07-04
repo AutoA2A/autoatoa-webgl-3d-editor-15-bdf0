@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的项目</title>
+<style>
+:root{
+--primary:#1976d2;
+--secondary:#42a5f5;
+--bg:#fff;
+--text:#333;
+--muted:#666;
+--border:#eee;
+--radius:8px;
+--btn-radius:4px;
+--gap:16px;
+}
+body{
+margin:0;font-family:'Helvetica Neue',Arial,sans-serif;background:#fafafa;color:var(--text);
+}
+header{
+background:var(--bg);border-bottom:1px solid var(--border);padding:0 var(--gap);
+display:flex;align-items:center;justify-content:space-between;
+}
+.nav{
+display:flex;gap:var(--gap);align-items:center;
+}
+.nav a{
+padding:8px 12px;color:var(--text);text-decoration:none;border-radius:var(--btn-radius);
+font-weight:500;
+}
+.nav a:hover{
+color:var(--primary);background:rgba(25,118,210,0.08);
+}
+.logo{
+font-size:1.25rem;font-weight:600;color:var(--primary);
+}
+@media (max-width:600px){
+.nav{
+overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;
+padding-bottom:4px;
+}
+.nav a{
+white-space:nowrap;
+}
+}
+main{
+padding:var(--gap);
+min-height:calc(100vh - 60px);
+}
+</style>
+<meta name="description" content="列出已保存到本地的模型文件，点击打开进入编辑器继续编辑。"><meta name="keywords" content="WebGL,3D建模,在线编辑器,模型编辑,GLTF"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="我的项目"><meta property="og:description" content="列出已保存到本地的模型文件，点击打开进入编辑器继续编辑。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="我的项目"><meta name="twitter:description" content="列出已保存到本地的模型文件，点击打开进入编辑器继续编辑。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"我的项目","description":"列出已保存到本地的模型文件，点击打开进入编辑器继续编辑。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+<div class="logo">WebGL 3D 模型编辑器</div>
+<nav class="nav">
+<a href="index.html">首页</a>
+<a href="editor.html">编辑器</a>
+<a href="library.html">素材库</a>
+<a href="projects.html">我的项目</a>
+<a href="help.html">帮助与文档</a>
+</nav>
+</header>
+<main>
+
+<section style='margin-bottom:var(--gap);'><h2 style='margin-top:0;color:var(--primary);font-size:1.5rem;'>我的项目</h2><div id="projects-list"></div></section>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ var container=document.getElementById('projects-list');
+ container.innerHTML='';
+ var models=[];
+ for(var i=0;i<localStorage.length;i++){
+   var key=localStorage.key(i);
+   if(key.indexOf('model_')===0){
+     var name=key.substring(6);
+     models.push({name:name,data:localStorage.getItem(key)});
+   }
+ }
+ if(models.length===0){
+   container.innerHTML="<div style='text-align:center;padding:var(--gap) 0;color:var(--muted);'><svg width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='var(--muted)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='8' x2='12' y2='12'></line><line x1='12' y1='16' x2='12' y2='16'></line></svg><p style='margin-top:12px;'>暂无项目</p></div>";
+   return;
+ }
+ var ul=document.createElement('ul');
+ ul.style.listStyle='none';
+ ul.style.padding=0;
+ ul.style.margin=0;
+ models.forEach(function(m){
+   var li=document.createElement('li');
+   li.style.padding='8px 0';
+   li.style.borderBottom='1px solid var(--border)';
+   var span=document.createElement('span');
+   span.textContent=m.name;
+   var btn=document.createElement('button');
+   btn.style.background=var(--primary);
+   btn.style.color='#fff';
+   btn.style.border='none';
+   btn.style.borderRadius=var(--btn-radius);
+   btn.style.padding='4px 8px';
+   btn.style.fontSize='0.9rem';
+   btn.style.cursor='pointer';
+   btn.textContent='打开';
+   btn.onclick=function(){
+     localStorage.setItem('openedModel',m.data);
+     window.location.href='editor.html';
+   };
+   li.appendChild(span);
+   li.appendChild(btn);
+   ul.appendChild(li);
+ });
+ container.appendChild(ul);
+});
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
